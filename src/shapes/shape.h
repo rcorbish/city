@@ -58,3 +58,19 @@ struct Vertex {
   Vertex( float x, float y, float z, float h, float k, float l, float s, float t ) :
    x(x), y(y), z(z), h(h), k(k), l(l), s(s), t(t) {}
 } ;
+
+struct Point3D {
+    const float x ;
+    const float y ;
+    const float z ;
+
+    Point3D( const float x, const float y, const float z ) :
+        x(x) ,
+        y(y) ,
+        z(z) {} 
+
+    Point3D normalize() {
+        float len = (float)std::sqrt( x*x + y*y + z*z ) ;
+        return Point3D( x/len, y/len, z/len ) ;
+    }
+} ;
