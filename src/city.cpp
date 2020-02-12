@@ -30,10 +30,10 @@ glm::vec3 eye( 0, 0.5, -2 ) ;
 
 std::shared_ptr<Plane> ground ;
 std::shared_ptr<Group> scene ;
-std::vector<std::shared_ptr<Texture>> buildingTextures ;
+//std::vector<std::shared_ptr<Texture>> buildingTextures ;
 
-std::shared_ptr<Group> createScene() ;
-
+void loadTextures( std::map<const char*,std::shared_ptr<Texture>> textures ) ;
+std::shared_ptr<Group> createScene( std::map<const char *,std::shared_ptr<Texture>> textures ) ;
 
 // ----------------------------------------------------------
 // display() Callback function
@@ -83,7 +83,12 @@ int main( int argc, char* argv[] ) {
   srand48( 21 ) ;
   setup( display, argc, argv ) ;
 
-  scene = createScene() ;
+  std::map<const char*,std::shared_ptr<Texture>> textures ;
+
+  std::shared_ptr<Texture> tst = textures["sand"] ;
+  std::cout << "Sand =" << tst << std::endl ;
+  
+  scene = createScene( textures ) ;
 
   glutSetOption( GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION ) ;
   //  Run display
@@ -96,7 +101,7 @@ int main( int argc, char* argv[] ) {
 }
 
 
-std::shared_ptr<Group> createScene() {
+std::shared_ptr<Group> createScene( std::map<const char *,std::shared_ptr<Texture>> textures ) {
   glm::vec3 lightPos( 0.f, 5.f, 5.f ) ;
 
   std::shared_ptr<Shader> baseShader = std::make_shared<Shader>( "shaders/shader.vs", "shaders/shader.fs" ); 
@@ -107,28 +112,28 @@ std::shared_ptr<Group> createScene() {
   sphereShader->use() ;
   sphereShader->setVec3( "lightPos", glm::value_ptr( lightPos ) ) ;
 
-  // Find all textures in this subdir
-  std::string path = "textures/buildings/" ;
+  // // Find all textures in this subdir
+  // std::string path = "textures/buildings/" ;
 
-  struct dirent *entry;
-  DIR *dir = opendir( path.c_str() );
-  if (dir != NULL) {
-    while ((entry = readdir(dir)) != NULL) {
-      std::string fullPath = path + entry->d_name ;
-      if( entry->d_type == DT_REG ) {
-        buildingTextures.emplace_back( std::make_shared<Texture>( fullPath.c_str() ) ) ;
-      }
-    }
-    closedir(dir);
-  }
+  // struct dirent *entry;
+  // DIR *dir = opendir( path.c_str() );
+  // if (dir != NULL) {
+  //   while ((entry = readdir(dir)) != NULL) {
+  //     std::string fullPath = path + entry->d_name ;
+  //     if( entry->d_type == DT_REG ) {
+  //       buildingTextures.emplace_back( std::make_shared<Texture>( fullPath.c_str() ) ) ;
+  //     }
+  //   }
+  //   closedir(dir);
+  // }
 
-  auto concrete = std::make_shared<Texture>( "textures/ground/TexturesCom_ConcreteNew0063_2_seamless_S.jpg" ) ;
-  auto bitumen = std::make_shared<Texture>( "textures/ground/TexturesCom_RooftilesBitumen0031_1_S.jpg" ) ;
-  auto sand = std::make_shared<Texture>( "textures/ground/TexturesCom_SoilSand0203_1_seamless_S.jpg" ) ;
+  // auto concrete = std::make_shared<Texture>( "textures/ground/TexturesCom_ConcreteNew0063_2_seamless_S.jpg" ) ;
+  // auto bitumen = std::make_shared<Texture>( "textures/ground/TexturesCom_RooftilesBitumen0031_1_S.jpg" ) ;
+  // auto sand = std::make_shared<Texture>( "textures/ground/TexturesCom_SoilSand0203_1_seamless_S.jpg" ) ;
 
   scene = std::make_shared<Group>() ;
 
-  ground = std::make_shared<Plane>( 25.f, baseShader, sand ) ;
+  ground = std::make_shared<Plane>( 25.f, baseShader, textures["sand"] ) ;
   ground->initVertexData() ;
   scene->add( ground ) ;
 
@@ -137,20 +142,42 @@ std::shared_ptr<Group> createScene() {
     float lon = ( drand48() - 0.5f ) * 18.f ;
     float lat = ( drand48() - 0.5f ) * 18.f ;
     float height = 1.0f + drand48() * 5.f ;
-
-    int texIndex = (int)( drand48() * buildingTextures.size() ) ;
     
-    std::shared_ptr<Shape> building = std::make_shared<Building>( lon, lat, height, baseShader, buildingTextures[texIndex] ) ;
+    auto building = std::make_shared<Building>( lon, lat, height, baseShader, textures["building"] ) ;
     building->initVertexData() ;
     scene->add( building ) ;
-    std::shared_ptr<Shape> roof = std::make_shared<Plane>( glm::vec3( lon, height, lat), 0.5, baseShader, (i&1)==0? concrete : bitumen ) ; 
+    auto roof = std::make_shared<Plane>( glm::vec3( lon, height, lat), 0.5, baseShader, textures["bitumen"] ) ; 
     roof->initVertexData() ;
     scene->add( roof ) ;
   }
 
-  std::shared_ptr<Shape> ball = std::make_shared<Sphere>( glm::vec3(-2, 11, -5), sphereShader, bitumen, 3 ) ;
+  auto ball = std::make_shared<Sphere>( glm::vec3(-2, 11, -5), sphereShader, textures["concrete"], 3 ) ;
   ball->initVertexData() ;
   scene->add( ball ) ;
 
   return scene ;
 }
+
+void loadTextures( std::map<const char *,std::shared_ptr<Texture>> textures ) {
+
+  // Find all textures in this subdir
+  std::string path = "textures/buildings/" ;
+
+  struct dirent *entry;
+  DIR *dir = opendir( path.c_str() );
+  if (dir != NULL) {
+    int ix = 0 ;
+    while ((entry = readdir(dir)) != NULL) {
+      std::string fullPath = path + entry->d_name ;
+      if( entry->d_type == DT_REG ) {
+        textures.emplace( "building", std::make_shared<Texture>( fullPath.c_str() ) ) ;
+        ++ix ;
+      }
+    }
+    closedir(dir);
+  }
+
+  textures.emplace( "concrete", std::make_shared<Texture>( "textures/ground/TexturesCom_ConcreteNew0063_2_seamless_S.jpg" ) ) ;
+  textures.emplace( "bitumen", std::make_shared<Texture>( "textures/ground/TexturesCom_RooftilesBitumen0031_1_S.jpg" ) ) ;
+  textures.emplace( "sand", std::make_shared<Texture>( "textures/ground/TexturesCom_SoilSand0203_1_seamless_S.jpg" ) ) ;
+} 
