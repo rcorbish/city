@@ -14,7 +14,7 @@ struct TriangleIndices {
 } ;
 
 
-int Sphere::getMiddlePoint(int p1, int p2, std::map<long,int> &cache, std::vector<Point3D> positions )
+int Sphere::getMiddlePoint(int p1, int p2, std::map<long,int> &cache )
 {
     // first check if we have it already
     bool firstIsSmaller = p1 < p2;
@@ -28,14 +28,16 @@ int Sphere::getMiddlePoint(int p1, int p2, std::map<long,int> &cache, std::vecto
     }
 
     // not in cache, calculate it
-    Point3D &point1 = positions[p1];
-    Point3D &point2 = positions[p2];
+    Vertex &v1 = vertexData[p1];
+    Vertex &v2 = vertexData[p2];
     
     int i = addVertex( 
-            (point1.x + point2.x) / 2.f,
-            (point1.y + point2.y) / 2.f,
-            (point1.z + point2.z) / 2.f
+            (v1.x + v2.x) / 2.f,
+            (v1.y + v2.y) / 2.f,
+            (v1.z + v2.z) / 2.f
             );
+
+    // indices.push_back( i ) ;
 
     // store it, return index
     cache[key] = i ;
@@ -45,7 +47,6 @@ int Sphere::getMiddlePoint(int p1, int p2, std::map<long,int> &cache, std::vecto
 
 void Sphere::makeVertexData() {
     std::map<long,int> middlePointIndexCache ;
-    std::vector<Point3D> positions ;
 
     // create 12 vertices of a icosahedron
     float t = (1.f + (float)std::sqrt(5.0)) / 2.f;
@@ -65,9 +66,9 @@ void Sphere::makeVertexData() {
     addVertex(-t,  0, -1 );
     addVertex(-t,  0,  1 );
 
-
     // create 20 triangles of the icosahedron
     auto faces = new std::vector<TriangleIndices>() ;
+    faces->reserve( 20 ) ;
 
     // 5 faces around point 0
     faces->emplace_back( 0, 11, 5 );
@@ -91,11 +92,11 @@ void Sphere::makeVertexData() {
     faces->emplace_back( 3, 8, 9 );
 
     // 5 adjacent faces
-    faces->emplace_back( 4, 9, 5 );
-    faces->emplace_back( 2, 4, 11 );
-    faces->emplace_back( 6, 2, 10 );
-    faces->emplace_back( 8, 6, 7 );
-    faces->emplace_back( 9, 8, 1 );
+    faces->emplace_back( 4, 9, 5 ) ;
+    faces->emplace_back( 2, 4, 11 ) ;
+    faces->emplace_back( 6, 2, 10 ) ;
+    faces->emplace_back( 8, 6, 7 ) ;
+    faces->emplace_back( 9, 8, 1 ) ;
 
     // refine triangles
     for( int i=0 ; i < recursionLevel; i++ )
@@ -105,21 +106,18 @@ void Sphere::makeVertexData() {
 
         for( auto & tri : *faces )  {
             // replace triangle by 4 triangles
-            int a = getMiddlePoint( tri.v1, tri.v2, middlePointIndexCache, positions );
-            int b = getMiddlePoint( tri.v2, tri.v3, middlePointIndexCache, positions );
-            int c = getMiddlePoint( tri.v3, tri.v1, middlePointIndexCache, positions );
+            int a = getMiddlePoint( tri.v1, tri.v2, middlePointIndexCache ) ;
+            int b = getMiddlePoint( tri.v2, tri.v3, middlePointIndexCache ) ;
+            int c = getMiddlePoint( tri.v3, tri.v1, middlePointIndexCache ) ;
 
             faces2->emplace_back( tri.v1, a, c ) ;
             faces2->emplace_back( a, tri.v2, b ) ;
             faces2->emplace_back( c, b, tri.v3 ) ;
             faces2->emplace_back( a, b, c ) ;
         }
-        faces = faces2;
-        delete faces ;
-    }
 
-    for( auto & point : positions ) {
-        addVertex( point.x, point.y, point.z ) ;
+        delete faces ;
+        faces = faces2;
     }
 
     for( auto & tri : *faces )
@@ -128,6 +126,11 @@ void Sphere::makeVertexData() {
         indices.push_back( tri.v2 ) ;
         indices.push_back( tri.v3 ) ;
     }
+
     delete faces ;
 }
 
+int Sphere::addVertex(  float x,  float y,  float z ) {
+    float len = std::sqrt( x*x + y*y + z*z ) ;
+    return Shape::addVertex( x/len, y/len, z/len ) ;
+}

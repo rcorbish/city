@@ -24,7 +24,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
     // ensure ifstream objects can throw exceptions:
-    std::cout << "Here 1" << std::endl ;
     vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
     try 
@@ -106,6 +105,11 @@ void Shader::setVec3(const std::string &name, const GLfloat * value) const
     glUniform3fv(id, 1, value ) ;  
 }
 
+void Shader::setVec2(const std::string &name, const GLfloat * value) const
+{ 
+    GLint id = glGetUniformLocation(ID, name.c_str()) ;
+    glUniform2fv(id, 1, value ) ;  
+}
 
 void Shader::checkCompileErrors(unsigned int shader, std::string type)
 {

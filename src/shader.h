@@ -31,6 +31,7 @@ class Shader
     void setFloat(const std::string &name, float value) const ;
     void setMatrix(const std::string &name, const GLfloat * value) const ;
     void setVec3(const std::string &name, const GLfloat * value) const ;
+    void setVec2(const std::string &name, const GLfloat * value) const ;
 };
 
 

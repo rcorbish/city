@@ -10,10 +10,6 @@
 
 extern glm::mat4 matrixCamera ;
 
-// constexpr float SCREEN_WIDTH = 25.f ;
-// constexpr float SCREEN_HEIGHT = 25.f ;
-// constexpr float SCREEN_DEPTH = 25.f ;
-
 class Group {
   private :
     std::vector<std::shared_ptr<Shape>> shapes ;

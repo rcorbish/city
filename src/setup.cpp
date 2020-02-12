@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define GL_GLEXT_PROTOTYPES
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 // #include <glm/glm.hpp>  
 // #include <glm/gtc/type_ptr.hpp>
 
@@ -21,13 +21,14 @@ float rotate_y=0;
 float rotate_x=0;
 float rotate_z=0;
 
-glm::mat4 matrixCamera ;
+glm::mat4 matrixModelPerspective ;
 
 float tmpx = 0.00001 ;
 float tmpy = 0 ;
 
 bool pause_clock = false ;
 bool freeze = false ;
+int windowHandle ;
 
 // What to do in case of key press
 void keypress_func( unsigned char key, int x, int y ) {
@@ -75,7 +76,8 @@ void keypress_func( unsigned char key, int x, int y ) {
     rotate_z=0 ;
   }
   if( key == 'q' ) {
-    exit( 0 ) ;
+    glutDestroyWindow( windowHandle ) ;
+    // glutDestroyWindow(glutGetWindow());
   }
 }
 
@@ -95,7 +97,7 @@ void setup( void (*display_func)(), int argc, char* argv[] ) {
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
  
   // Create window
-  glutCreateWindow("Discus");
+  windowHandle = glutCreateWindow("City");
   glutReshapeWindow( 400, 400 );
 
   // Add keypress listener for current window
@@ -108,12 +110,10 @@ void setup( void (*display_func)(), int argc, char* argv[] ) {
 
   glViewport( 0.f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT ); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
   
-  glm::mat4 matrixModelPerspective = glm::ortho( -SCREEN_WIDTH/2.f, SCREEN_WIDTH/2.f, -SCREEN_HEIGHT/2.f, SCREEN_HEIGHT/2.f, -SCREEN_DEPTH/2.f, SCREEN_DEPTH/2.f ); // essentially set coordinate system
-  glm::mat4 matrixModelView = glm::lookAt( glm::vec3(0, .5, -2 ), glm::vec3(0, 0.0, 0.0), glm::vec3(0, 1, 0) ) ;
+  matrixModelPerspective = glm::ortho( -SCREEN_WIDTH/2.f, SCREEN_WIDTH/2.f, -SCREEN_HEIGHT/2.f, SCREEN_HEIGHT/2.f, -SCREEN_DEPTH/2.f, SCREEN_DEPTH/2.f ); // essentially set coordinate system
 
-  matrixCamera = matrixModelPerspective * matrixModelView ;
+  glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION) ;
 
   // Callback functions
   glutDisplayFunc( display_func ) ;
- 
 }

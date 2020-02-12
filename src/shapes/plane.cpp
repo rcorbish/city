@@ -1,6 +1,11 @@
 
 #include "plane.h"
 
+void Plane::draw( glm::mat4 &matrixCamera, glm::mat4 &matrixModel ) {
+    textureOffset.y = centre.z/6.25 ;
+    Shape::draw( matrixCamera, matrixModel ) ;
+}
+
 
 // ----------------------------------------------------------
 // makeVertexData() function

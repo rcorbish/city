@@ -13,7 +13,7 @@ void keypress_func( unsigned char key, int x, int y ) ;
 // ----------------------------------------------------------
 void setup( void (*display_func)(), int argc, char* argv[] ) ;
 
-extern glm::mat4 matrixCamera ;
+extern glm::mat4 matrixModelPerspective ;
 
 extern float rotate_y ; 
 extern float rotate_x ;

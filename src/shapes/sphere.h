@@ -13,15 +13,15 @@
  */
 class Sphere : public Shape {
 private:
-    std::vector<int> indices ;
     const int recursionLevel ;
-    int getMiddlePoint(int p1, int p2, std::map<long,int> &cache, std::vector<Point3D> positions ) ;
+    int getMiddlePoint(int p1, int p2, std::map<long,int> &cache ) ;
 
 protected:
     void makeVertexData() ;
+    int  addVertex(  float x,  float y,  float z ) ;
 
 public:
-    Sphere( std::shared_ptr<Shader> program, int recursionLevel, std::shared_ptr<Texture> texture ) :
-        Shape( program, texture ) , recursionLevel(recursionLevel) {} ;
+    Sphere( const glm::vec3 &centre, std::shared_ptr<Shader> program, std::shared_ptr<Texture> texture, int recursionLevel=2 ) :
+        Shape( centre, program, texture ) , recursionLevel(recursionLevel) {} ;
 
 } ;

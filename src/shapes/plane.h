@@ -11,8 +11,10 @@ protected:
     void makeVertexData() ;
 
 public:
-    Plane( float cx, float cy, float cz, float extent, std::shared_ptr<Shader> program, std::shared_ptr<Texture> texture ) :
-        Shape( cx, cy, cz, program, texture ), extent(extent) {} ;
+    Plane( glm::vec3 centre, float extent, std::shared_ptr<Shader> program, std::shared_ptr<Texture> texture ) :
+        Shape( centre, program, texture ), extent(extent) {} ;
     Plane( float extent, std::shared_ptr<Shader> program, std::shared_ptr<Texture> texture ) :
-        Plane( 0, 0, 0, extent, program, texture ) {} ;
+        Plane( glm::vec3(0,0,0), extent, program, texture ) {} ;
+
+    void draw( glm::mat4 &matrixCamera, glm::mat4 &matrixModel ) ;
 } ;

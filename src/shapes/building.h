@@ -11,5 +11,5 @@ protected:
 
 public:
     Building( float longitude, float latitude, float height, std::shared_ptr<Shader> program, std::shared_ptr<Texture> texture ) :
-        Shape( longitude, 0, latitude, program, texture ), height(height) {} ;
+        Shape( glm::vec3( longitude, 0.f, latitude), program, texture ), height(height) {} ;
 } ;
