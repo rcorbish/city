@@ -30,9 +30,11 @@ void Shape::draw( glm::mat4 &matrixCamera, glm::mat4 &matrixModel ) {
     this->program->setMatrix( "CAMERA", glm::value_ptr(matrixCamera) ) ;
     this->program->setMatrix( "MODEL", glm::value_ptr(finalModel) ) ;
     this->program->setVec2( "textureOffset", glm::value_ptr(textureOffset) ) ;
+    this->program->setInt( "shaderTexture", texture->getTextureUnit() ) ;
 
-    glActiveTexture( GL_TEXTURE0 ) ; 
-    glBindTexture(GL_TEXTURE_2D, *texture ) ;
+    texture->use() ;
+    // glActiveTexture( GL_TEXTURE0 ) ; 
+    // glBindTexture(GL_TEXTURE_2D, *texture ) ;
 
     glBindVertexArray( VAO ) ;
     glDrawElements( GL_TRIANGLES, indices.size(),  GL_UNSIGNED_SHORT, nullptr ) ;

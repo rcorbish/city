@@ -5,7 +5,12 @@
 class Texture {
     private:
         GLuint texture ;
+        const int textureUnit ;
     public:
-        Texture( const char *image_file ) ;
-        operator GLuint() { return texture ; }
-} ;
+        Texture( int textureUnit, const char *image_file ) ;
+        ~Texture() ;
+
+        void use() ;
+        GLuint getTexture() { return texture ; }
+        int getTextureUnit() { return textureUnit ; }
+} ; 
